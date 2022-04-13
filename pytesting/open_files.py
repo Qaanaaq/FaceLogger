@@ -10,8 +10,17 @@ from tkinter import Label
 
 
 
+
+
+
+
+
+
+
+
+
 #open model file
-def select_model():
+def select_model(param):
     filetypes2 = (
         ('Model', '*.dat'),
         ('All files', '*.*')
@@ -22,17 +31,20 @@ def select_model():
         initialdir='//',
         filetypes=filetypes2
     )
+    global model_file_name
+    model_file_name = model
+    print(model_file_name)
 
-    showinfo(
-        title='Selected File',
-        message=model
-    )
-
-    model=var
+    param.config(text = model)
 
 
+    #showinfo(
+    #    title='Selected File',
+    #    message=model
+    #)
 
-def select_video_file():
+
+def select_video_file(param):
     filetypes = (
         ('Video files', '*.mp4'),
         ('All files', '*.*')
@@ -43,8 +55,14 @@ def select_video_file():
         initialdir='/',
         filetypes=filetypes
     )
+    global video_file_name
+    video_file_name = videoname
+    print(video_file_name)
 
-    showinfo(
-        title='Selected File',
-        message=videoname
-    )
+    param.config(text = videoname)
+
+
+    #showinfo(
+    #    title='Selected File',
+    #    message=videoname
+    #)

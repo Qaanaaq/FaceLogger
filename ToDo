@@ -1,0 +1,44 @@
+#here I will be writing some todo stuff
+
+two chunks of code.
+
+FACE_LOGGER
+FACE_TARGETER
+
+#face_logger receives video from file or webcam.
+#choose video or webcam
+## FOR WEBCAM _ there is a record, stop button, and extreme calibration. Neutral calibration.
+
+## FOR video file there is play pause, frame back and forward, timeline.
+
+#####TRAINING _ Mouth_ brows_ eyes_ jaws.
+reset, guess. set at extremes
+
+### EXPORT DATA TO CSV
+
+
+
+
+
+## preview window with 52 arkit expressions
+model moving with blendeshapes
+
+
+
+
+
+
+
+$##### BLENDER ADDON_ loads the 52 ARKIT model.
+
+#load face rig that has 2 layers. MOCAPDATA and TUNE.
+
+#load mocapdata to ARKIT > Read CSV document
+
+#connect ARKIT model to target model.
+
+#tune connection/multiplication.
+
+#smoothing functions
+
+# keyframe extra tuning

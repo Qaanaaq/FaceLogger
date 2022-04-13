@@ -3,14 +3,18 @@ from tkinter import ttk
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
 from tkinter import StringVar
+from tkinter import Label
+import open_files
+import tracking_files
 
 # create the root window
 root = tk.Tk()
 root.title('Face Logger OPENCV2FACS')
 root.resizable(False, False)
-root.geometry('600x200')
+root.geometry('800x200')
 #this changes the favicon just coz
 root.iconbitmap('C:/Users/Andras/github/FaceLogger/pytesting/face.ico')
+
 
 
 
@@ -21,18 +25,40 @@ def rgb_hack(rgb):
 root.config(bg=rgb_hack((51, 51, 51)))
 
 
-def tracking():{  }
 
-def normalize():{  }
+def normalize():
+    print (open_files.model_file_name, open_files.video_file_name)
 
-from open_files import *
+
+
+
+
+#creating labels
+
+model_label_name= StringVar()
+model_label_name.set("")
+model_label = Label(root, text = model_label_name.get())
+model_label.place(x=250, y=20)
+model_label.config(bg=rgb_hack((51, 51, 51)), fg='#fff')
+
+video_label_name= StringVar()
+video_label_name.set("")
+video_label = Label(root, text = video_label_name.get())
+video_label.place(x=250, y=50)
+video_label.config(bg=rgb_hack((51, 51, 51)), fg='#fff')
+
+
+##### variables for from the selected files
+open_files.video_file_name = "0"
+open_files.model_file_name = "0"
+
 
 
 # open model button
 model_button = ttk.Button(
     root,
     text='Open tracking model',
-    command= select_model,
+    command= lambda: open_files.select_model(model_label),
     width = 30
 )
 model_button.place(x=20, y=20)
@@ -42,7 +68,7 @@ model_button.place(x=20, y=20)
 video_button = ttk.Button(
     root,
     text='Open video file',
-    command=select_video_file,
+    command= lambda: open_files.select_video_file(video_label),
     width = 30
 )
 video_button.place(x=20, y=50)
@@ -52,7 +78,7 @@ video_button.place(x=20, y=50)
 track_button = ttk.Button(
     root,
     text='Track video',
-    command=tracking,
+    command= lambda: tracking_files.tracking_function(open_files.model_file_name, open_files.video_file_name),
     width = 30
 )
 track_button.place(x=20, y=80)
@@ -66,15 +92,10 @@ normalize_button = ttk.Button(
 )
 normalize_button.place(x=20, y=110)
 
-var = tk.StringVar()
-model_label = Label(root, text = var)
-model_label.place(x=250, y=20)
 
 
 
-#video_label = Label(root, text = select_video_file.videoname)
 
-#video_label.pack()
 
 # run the application
 root.mainloop()
