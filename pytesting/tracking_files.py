@@ -4,7 +4,7 @@ import os
 import csv
 
 
-def tracking_function(model, filename):
+def tracking_function(model, filename, param):
     print (model)
     print (filename)
     filebasedir= os.path.dirname(filename)
@@ -335,6 +335,8 @@ def tracking_function(model, filename):
         key = cv2.waitKey(1)
         if key == 27:
             break
+
+        param.config(text = "Tracking done!")
 
     cap.release()
     cv2.destroyAllWindows()
