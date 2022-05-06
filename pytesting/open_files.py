@@ -52,7 +52,7 @@ def select_video_file(param):
 
     videoname = fd.askopenfilename(
         title='Open tracking model',
-        initialdir='/',
+        initialdir='//',
         filetypes=filetypes
     )
     global video_file_name

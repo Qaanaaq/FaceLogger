@@ -9,13 +9,17 @@ import open_files
 import tracking_files
 import normalization
 
+import os
+from config.definitions import ROOT_DIR
+#print(os.path.join(ROOT_DIR, 'face.ico'))
+
 # create the root window
 root = tk.Tk()
 root.title('Face Logger OPENCV2FACS')
 root.resizable(False, False)
 root.geometry('800x200')
 #this changes the favicon just coz
-root.iconbitmap('C:/Users/Andras/github/FaceLogger/pytesting/face.ico')
+root.iconbitmap(os.path.join(ROOT_DIR, 'face.ico'))
 
 
 
