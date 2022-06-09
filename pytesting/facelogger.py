@@ -9,8 +9,19 @@ import open_files
 import tracking_files
 import normalization
 
+from pathlib import *
+
+
+current_dir = Path.cwd()
+home_dir = Path.home()
+#print(current_dir)
+#print(home_dir)
+
+
+
 import os
-from config.definitions import ROOT_DIR
+#from config.definitions import ROOT_DIR
+#ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), '..'))
 #print(os.path.join(ROOT_DIR, 'face.ico'))
 
 # create the root window
@@ -19,7 +30,7 @@ root.title('Face Logger OPENCV2FACS')
 root.resizable(False, False)
 root.geometry('800x200')
 #this changes the favicon just coz
-root.iconbitmap(os.path.join(ROOT_DIR, 'face.ico'))
+root.iconbitmap(os.path.join(current_dir, 'face.ico'))
 
 
 
