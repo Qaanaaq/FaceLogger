@@ -1,1 +1,0 @@
-pyinstaller.exe --noconsole --hidden-import dlib --onedir --icon=face.ico facelogger.py
