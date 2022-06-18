@@ -8,7 +8,7 @@ win = Tk()
 win.geometry("700x550")
 
 #Load the image
-img = cv.imread(r"C:\Users\Andras\Desktop\a.jpg")
+img = cv.imread(r"C:\Users\Andras\Desktop\c.jpg")
 
 #Rearrange colors
 blue,green,red = cv.split(img)

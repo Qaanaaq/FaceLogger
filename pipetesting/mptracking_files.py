@@ -4,6 +4,28 @@ import csv
 import numpy as np
 import mediapipe as mp
 
+import tkinter as tk
+from tkinter import *
+from tkinter import Label
+from PIL import Image, ImageTk
+
+import open_files
+
+
+# def redrawing_function(frame, secretparam):
+#
+#     image = open_files.frame
+#     image= cv.resize(image, None, fx=0.1, fy=0.1)
+#     blue,green,red = cv.split(image)
+#     image = cv.merge((red,green,blue))
+#     im = Image.fromarray(image)
+#     CATCH = ImageTk.PhotoImage(image=im)
+#
+#     secretparam.config(image=CATCH)
+
+
+global frame
+global img
 def tracking_function(filename, param):
     print (filename)
     filebasedir= os.path.dirname(filename)
@@ -85,7 +107,6 @@ def tracking_function(filename, param):
         min_detection_confidence= 0.5,
         min_tracking_confidence=0.5
     ) as face_mesh:
-
 
         while True:
             ret, frame = cap.read()
@@ -337,15 +358,39 @@ def tracking_function(filename, param):
 
             if not os.path.exists(filebasedir +  "/TrackedVideo_" + filenaming):
                     os.makedirs(filebasedir + "/TrackedVideo_" + filenaming)
-            img1 = cv.imshow("Face Landmarks", frame)
+
+            #cv.imshow("Face Landmarks", frame)
             cv.imwrite(filebasedir + '/TrackedVideo_' + filenaming + '/TrackedVideo_' + filenaming + '_' + str(framenumber-1)+'.jpg',frame)
+            # redrawing_function(frame, secret)
+
+            #open_files.redrawing_function(frame, labelparam)
 
             key = cv.waitKey(1)
             if key == ord('q'):
                 break
 
             param.config(text = "Tracking done!")
-        return img1
+
 
     cap.release()
     cv.destroyAllWindows()
+
+global frame
+img = cv.imread(r"C:\Users\Andras\Desktop\a.jpg")
+frame = img
+
+def redrawing_function(win):
+
+    img = frame
+    width = 760
+    height = int((width / img.shape[1] ) *img.shape[0])
+    dim = (width, height)
+    image= cv.resize(img, dim)
+    blue,green,red = cv.split(image)
+    image = cv.merge((red,green,blue))
+    im = Image.fromarray(image)
+    CATCH = ImageTk.PhotoImage(image=im)
+
+    #labelparam.config(image=CATCH)
+    win.create_image(0, 0, image=CATCH, anchor=NW)
+    win.image=CATCH
