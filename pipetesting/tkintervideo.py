@@ -15,8 +15,10 @@ class App:
 
         # open video source (by default this will try to open the computer webcam)
         self.vid = MyVideoCapture(self.video_source)
-        wideInt= int(self.vid.width)
-        heightInt=int(self.vid.height)
+        #wideInt= int(self.vid.width)
+        #heightInt=int(self.vid.height)
+        wideInt= 820
+        heightInt= 420
         self.window.geometry(f'{wideInt+20}x{heightInt+80}')
 
         # Create a canvas that can fit the above video source size
@@ -30,10 +32,12 @@ class App:
         #labelstrack_label_name.set("")
         self.label = Label(self.window, text = 0)
         self.label.place(x=50, y=50)
+        # self.label.pack()
         #label.config(bg=rgb_hack((51, 51, 51)), fg='#fff')
 
-        self.slider =Scale(self.window, from_=0, to=allframes, length=self.vid.width,tickinterval=10, orient=HORIZONTAL)
-        self.slider.place(x=10, y=heightInt+10)
+        self.slider =Scale(self.window, from_=0, to=allframes, length=800,tickinterval=10, orient=HORIZONTAL)
+        self.slider.place(x=10, y=heightInt-10)
+        # self.slider.pack()
 
 
 
@@ -54,14 +58,15 @@ class App:
 
     def update(self):
         # Get a frame from the video source
-        ret, current, frame = self.vid.get_frame()
-        print (current)
+        slider=self.slider.get()
+        ret, current, frame = self.vid.slide_get_frame(slider)
+
         self.label.config(text = current)
-        self.slider.set(int(current))
+
         if ret:
             self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(frame))
             self.canvas.create_image(0, 0, image = self.photo, anchor = tkinter.NW)
-
+            self.canvas.pack()
             self.window.after(self.delay, self.update)
 
         else:
@@ -79,13 +84,39 @@ class MyVideoCapture:
         self.height = self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
 
+    def slide_get_frame(self, slider):
+            if self.vid.isOpened():
+                self.vid.set(cv2.CAP_PROP_POS_FRAMES, slider)
+                self.current = self.vid.get(cv2.CAP_PROP_POS_FRAMES)
+                ret, frame = self.vid.read()
+                if ret:
+                    # Return a boolean success flag and the current frame converted to BGR
+                    self.current = self.vid.get(cv2.CAP_PROP_POS_FRAMES)
+                    scale_percent = 30 # percent of original size
+                    width = 800
+                    height = int(frame.shape[0] * (width / frame.shape[1]))
+                    dim = (width, height)
+                    frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+                    if allframes+1==self.current:
+                        print ("ok")
+
+                        return (ret, "",cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                    return (ret, self.current,cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                else:
+                    return (ret, "0",None)
+            else:
+                return (ret,"0" ,None)
+
+
+
     def get_frame(self):
         if self.vid.isOpened():
             ret, frame = self.vid.read()
             if ret:
                 # Return a boolean success flag and the current frame converted to BGR
                 self.current = self.vid.get(cv2.CAP_PROP_POS_FRAMES)
-                if allframes==self.current:
+                if allframes+1==self.current:
+                    print ("ok")
                     return (ret, "",cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
                 return (ret, self.current,cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             else:
