@@ -35,7 +35,7 @@ class App:
         # self.label.pack()
         #label.config(bg=rgb_hack((51, 51, 51)), fg='#fff')
 
-        self.slider =Scale(self.window, from_=0, to=allframes, length=800,tickinterval=10, orient=HORIZONTAL)
+        self.slider =Scale(self.window, from_=0, to=allframes-1, length=800,tickinterval=10, orient=HORIZONTAL)
         self.slider.place(x=10, y=heightInt-10)
         # self.slider.pack()
 
@@ -61,7 +61,7 @@ class App:
         slider=self.slider.get()
         ret, current, frame = self.vid.slide_get_frame(slider)
 
-        self.label.config(text = current)
+        self.label.config(text = current-1)
 
         if ret:
             self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(frame))
@@ -69,8 +69,8 @@ class App:
             self.canvas.pack()
             self.window.after(self.delay, self.update)
 
-        else:
-            print ("ende")
+        # else:
+        #     print ("ende")
 
 class MyVideoCapture:
     def __init__(self, video_source=0):
@@ -103,26 +103,26 @@ class MyVideoCapture:
                         return (ret, "",cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
                     return (ret, self.current,cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
                 else:
-                    return (ret, "0",None)
+                    return (ret, self.current,None)
             else:
-                return (ret,"0" ,None)
-
-
-
-    def get_frame(self):
-        if self.vid.isOpened():
-            ret, frame = self.vid.read()
-            if ret:
-                # Return a boolean success flag and the current frame converted to BGR
-                self.current = self.vid.get(cv2.CAP_PROP_POS_FRAMES)
-                if allframes+1==self.current:
-                    print ("ok")
-                    return (ret, "",cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
                 return (ret, self.current,cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            else:
-                return (ret, "0",None)
-        else:
-            return (ret,"0" ,None)
+
+
+
+    # def get_frame(self):
+    #     if self.vid.isOpened():
+    #         ret, frame = self.vid.read()
+    #         if ret:
+    #             # Return a boolean success flag and the current frame converted to BGR
+    #             self.current = self.vid.get(cv2.CAP_PROP_POS_FRAMES)
+    #             if allframes+1==self.current:
+    #                 print ("ok")
+    #                 return (ret, "",cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    #             return (ret, self.current,cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    #         else:
+    #             return (ret, "0",None)
+    #     else:
+    #         return (ret,"0" ,None)
 
  # Release the video source when the object is destroyed
     def __del__(self):
