@@ -18,12 +18,6 @@ import cv2 as cv
 
 
 
-
-
-
-
-
-
 def select_video_file(param):
     filetypes = (
         ('Video files', '*.mp4'),
