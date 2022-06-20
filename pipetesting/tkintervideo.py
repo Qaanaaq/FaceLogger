@@ -44,11 +44,22 @@ class App:
         # After it is called once, the update method will be automatically called every delay milliseconds
         self.delay = 15
         self.update()
-
+        self.counter()
 
 
 
         self.window.mainloop()
+
+    def counter(self):
+        counter = 1
+        print(counter)
+        import time
+        while counter < allframes:
+            time.sleep(1/fps)
+            self.slider.set(counter)
+            counter += 1
+            print(counter)
+
 
     def snapshot(self):
         # Get a frame from the video source
@@ -143,18 +154,18 @@ class GetNumberOfFrames:
         #  Video acquisition
         videoCapture=cv2.VideoCapture(videoPath)
         #  Frame rate (frames per second)
-        fps = videoCapture.get(cv2.CAP_PROP_FPS)
+        self.fps = videoCapture.get(cv2.CAP_PROP_FPS)
         #  The total number of frames (frames)
         self.frames = videoCapture.get(cv2.CAP_PROP_FRAME_COUNT)
-        print(" frames : "+str(fps))
+        print(" frames : "+str(self.fps))
         print(" The total number of frames: "+str(self.frames))
-        print(" Total video duration: "+"{0:.2f}".format(self.frames/fps)+" second ")
+        print(" Total video duration: "+"{0:.2f}".format(self.frames/self.fps)+" second ")
         self.AllFramer(self.frames)
 
 
 
 GetNumberOfFrames()
 allframes = GetNumberOfFrames().frames
-
+fps = GetNumberOfFrames().fps
 # # Create a window and pass it to the Application object
 App(tkinter.Tk(), "Tkinter and OpenCV", "C:/Users/Andras/Desktop/test.mp4")
