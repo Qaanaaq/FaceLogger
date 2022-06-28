@@ -39,26 +39,32 @@ class App:
         self.slider.place(x=10, y=heightInt-10)
         # self.slider.pack()
 
+        self.btplay=tkinter.Button(window, text="Play", width=50, command=self.play)
+        self.btplay.place(x=100, y=50)
 
 
         # After it is called once, the update method will be automatically called every delay milliseconds
         self.delay = 15
         self.update()
-        self.counter()
+
 
 
 
         self.window.mainloop()
 
-    def counter(self):
+    def play(self):
+        global counter
         counter = 1
-        print(counter)
         import time
         while counter < allframes:
             time.sleep(1/fps)
-            self.slider.set(counter)
+            self.update_slider(counter)
             counter += 1
+            #yield counter
             print(counter)
+
+
+
 
 
     def snapshot(self):
@@ -67,9 +73,15 @@ class App:
         if ret:
             cv2.imwrite("frame-" + time.strftime("%d-%m-%Y-%H-%M-%S") + ".jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
 
+    def update_slider(self, counter):
+
+        self.slider.set(counter)
+        self.window.after(self.delay, self.update_slider)
+
+
     def update(self):
-        # Get a frame from the video source
         slider=self.slider.get()
+
         ret, current, frame = self.vid.slide_get_frame(slider)
 
         self.label.config(text = current-1)
@@ -141,9 +153,7 @@ class MyVideoCapture:
             self.vid.release()
 
 class GetNumberOfFrames:
-    def AllFramer(self, frames):
-        print ("This is the thing: " + str(frames))
-        return frames
+
 
 
     def __init__(self):
@@ -160,7 +170,6 @@ class GetNumberOfFrames:
         print(" frames : "+str(self.fps))
         print(" The total number of frames: "+str(self.frames))
         print(" Total video duration: "+"{0:.2f}".format(self.frames/self.fps)+" second ")
-        self.AllFramer(self.frames)
 
 
 
