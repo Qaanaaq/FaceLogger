@@ -1,10 +1,13 @@
 import tkinter
 import cv2
 import PIL.Image, PIL.ImageTk
+
 from tkinter import Scale
 from tkinter import HORIZONTAL
 from tkinter import Label
 from tkinter import filedialog
+
+
 import time
 import numpy as np
 import mediapipe as mp
@@ -27,8 +30,30 @@ class CurrentFrame:
     def set_current_frame(self, set_frame):
         self.current_frame = set_frame
 
+
     def get_current_frame(self):
+        # print ("getting: "+str(self.current_frame))
         return self.current_frame
+
+class CurrentTime:
+    current_time = 0
+    def __init__(self):
+        pass
+
+
+
+    @classmethod
+    def set_current_time(self, set_time):
+        self.current_time = set_time
+
+
+
+    def get_current_time(self):
+        return self.current_time
+
+    # current_time = property(get_current_time, set_current_time)
+
+
 
 class CurrentImage:
     def __init__(self):
@@ -39,16 +64,15 @@ class CurrentImage:
         dim = (width, height)
         frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
         self.current_image = frame
         self.frame= frame
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-
 
 
     def set_current_image(self, set_image):
         # cv2.imshow("Face Landmarks", self.frame )
         self.current_image = set_image
+
 
 
     def get_current_image(self):
@@ -86,8 +110,21 @@ class Display:
         self.slider =Scale(self.window, from_=0, to=frame_number-1, length=800,tickinterval=10, orient=HORIZONTAL)
         self.slider.place(x=10, y=heightInt-10)
 
-        self.btplay=tkinter.Button(window, text="Play", width=50, command=lambda: self.JumpTo(30))
+        self.btplay=tkinter.Button(window, text="Play / Pause", width=30, command=lambda: self.Play())
         self.btplay.place(x=100, y=450)
+
+        self.btplay=tkinter.Button(window, text="Backwards / Pause", width=30, command=lambda: self.PlayBack())
+        self.btplay.place(x=350, y=450)
+
+        self.playing = False
+        self.backwardsplaying = False
+
+        self.frames_label = Label(self.window, text = "Frames")
+        self.frames_label.place(x=600, y=500)
+        self.frame_entry = tkinter.Entry(window,textvariable = "", font=('calibre',10,'normal'))
+        self.frame_entry.place(x=650, y=500)
+
+
 
         # After it is called once, the update method will be automatically called every delay milliseconds
         self.delay = 15
@@ -101,10 +138,31 @@ class Display:
 
 # display selected frame
     def update(self):
-        c=CurrentFrame()
-        i=CurrentImage()
+        c = CurrentFrame()
+        i = CurrentImage()
+        t = CurrentTime()
+
+
+        if self.playing is True:
+            t.set_current_time(t.get_current_time() + 1)
+            slider_pos = t.get_current_time()
+            self.slider.set(slider_pos)
+        if self.backwardsplaying is True:
+            t.set_current_time(t.get_current_time() - 1)
+            slider_pos = t.get_current_time()
+            self.slider.set(slider_pos)
+        else:
+            t.set_current_time(self.slider.get())
+
+
+        # if self.frame_entry is not None:
+        # self.slider.set(self.frame_entry)
+
 
         c.set_current_frame(self.slider.get())
+
+
+
 
         self.vid.set(cv2.CAP_PROP_POS_FRAMES, c.get_current_frame())
         ret, frame = self.vid.read()
@@ -118,38 +176,42 @@ class Display:
             frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            self.Process(self.vid)
-            # frame = i.get_current_image()
+            self.FrameToProcess = frame
+            #### COMMENT THIS TO UNPROCESSED VIDEO --->
+            processed = self.Process(self.vid, self.FrameToProcess)
+            i.set_current_image(processed)
+            frame = i.get_current_image()
 
             self.label.config(text = c.get_current_frame())
             self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(frame))
             self.canvas.create_image(0, 0, image = self.photo, anchor = tkinter.NW)
-            # self.photo2 = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(i.get_current_image()))
-            # self.canvas.create_image(5, 5, image = self.photo2, anchor = tkinter.NW)
+
             self.canvas.pack()
             self.window.after(self.delay, self.update)
 
 
 
 
-    # define the countdown func.
-    def countdown(self, t, max):
 
 
-        while t<max:
-            secs = t
-            timer = '{:02d}'.format( secs)
-            print(timer, end="\r")
-            self.update()
-            time.sleep(0.1)
+    #play function
 
-            t += 1
-            CurrentFrame().set_current_frame(t)
+    def Play(self):
+        self.playing^= True
+
+    def PlayBack(self):
+        self.backwardsplaying^= True
+
+
+
+
+
+
 
     def JumpTo(self, t):
         self.slider.set(t)
 
-    def Process(self, image):
+    def Process(self, video, FrameToProcess):
 
         i=CurrentImage()
 
@@ -161,7 +223,13 @@ class Display:
             min_tracking_confidence=0.5
         ) as face_mesh:
 
-            ret, frame = image.read()
+
+            # data = PIL.Image.fromarray(image)
+            # print ("thing: " + str(data))
+            # cv2.imshow("Face Landmarks2", image)
+            # picture = cv2.imread(data)
+
+            ret, frame = video.read()
 
             if ret:
 
@@ -183,12 +251,13 @@ class Display:
                     y = img_h*landmarks.landmark[n].y
                     cv2.circle(frame, (int(x), int(y)), 1, (45, 245, 55), 1)
 
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                cv2.imshow("Face Landmarks", frame)
-                i.set_current_image(frame)
+                # cv2.imshow("Face Landmarks", frame)
+                FrameToProcess = frame
+                return FrameToProcess
 
 
-                # print (i.get_current_image())
+
+            # print (i.get_current_image())
 
 
 
