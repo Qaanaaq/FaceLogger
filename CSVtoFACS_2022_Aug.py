@@ -12,7 +12,7 @@ bl_info={
     "name": "OpenFace FACS Data to Bones",
     "author": "Andras Csefalvay",
     "description": "Can apply OpenFace FACS Data to Bones from a .csv file that OpenFace exports",
-    "version": (1,0,4,),
+    "version": (1,2,8,),
     "location": "View3D>FACS>OpenFace FACS Data to Bones",
     "category": "FACS",
     "support": "COMMUNITY",
@@ -85,10 +85,10 @@ class MYADDON_OT_my_operator(bpy.types.Operator):
                 ###################################################
                 ## set number of Action Units, from file (name of AU from first ROW) or set manually
                 actionunits = ["AU01", "AU02", "AU03", "AU04", "AU05"]
-                longlist = ['Frame', 'MouthOpen', 'MouthWide', 'JawOpen',
+                longlist = ['Frame', 'MouthOpen', 'MouthWide','MouthPucker', 'JawOpen',
                     'MouthCorner_Left', 'MouthCorner_Right', 'UpperLipRaiser',
                     'LowerLipRaiser', 'LipPresser', 'EyeBlink', 'InnerBrowRaiser',
-                    'OuterBrowRaiser', 'BrowLowerer']
+                    'OuterBrowRaiser', 'BrowLowerer', 'EyeHoriz', 'EyeVert']
 
                 ## access CSV
                 #dir= "C:/Users/Andras/Desktop/tester.csv"
@@ -211,10 +211,10 @@ class FUNCTION_OT_my_operator(bpy.types.Operator):
             bpy.data.objects["FACS_Controller"].select_set(True)
 
             #theCODE
-            longlist = ['Frame', 'MouthOpen', 'MouthWide', 'JawOpen',
+            longlist = ['Frame', 'MouthOpen', 'MouthWide','MouthPucker', 'JawOpen',
                 'MouthCorner_Left', 'MouthCorner_Right', 'UpperLipRaiser',
                 'LowerLipRaiser', 'LipPresser', 'EyeBlink', 'InnerBrowRaiser',
-                'OuterBrowRaiser', 'BrowLowerer']
+                'OuterBrowRaiser', 'BrowLowerer', 'EyeHoriz', 'EyeVert']
 
             actionunits= longlist
             actionUnitNumber = len(longlist)
@@ -323,7 +323,7 @@ class FUNCTION_OT_my_drivers(bpy.types.Operator):
 
 
 
-                longlist = ['MouthOpen', 'MouthWide', 'MouthWide','MouthWide','MouthWide','JawOpen',
+                longlist = ['MouthOpen', 'MouthWide', 'MouthWide','MouthPucker','MouthOpen','JawOpen',
                     'MouthCorner_Left', 'MouthCorner_Right', 'MouthCorner_Left', 'MouthCorner_Right','UpperLipRaiser', 'UpperLipRaiser',
                     'LowerLipRaiser', 'LipPresser', 'LipPresser', 'EyeBlink', 'EyeBlink','InnerBrowRaiser',
                     'OuterBrowRaiser','OuterBrowRaiser', 'BrowLowerer', 'BrowLowerer']
@@ -333,10 +333,10 @@ class FUNCTION_OT_my_drivers(bpy.types.Operator):
                     'mouthRollLower', 'mouthPressLeft', 'mouthPressRight','eyeBlinkLeft', 'eyeBlinkRight','browInnerUp',
                     'browOuterUpLeft','browOuterUpRight', 'browDownRight' ,'browDownLeft']
 
-                direction= [-1,2,2,-6,-2,1,
-                            1,1,1,1,1,1,
-                            1,1,1,1,1,1,
-                            1,1,1,1]
+                direction= [-1,1,1,2,-1,-1,
+                            1,1,3,3,1,1,
+                            1,2,2,1,1,3,
+                            3,3,3,3]
 
                 actionunits= longlist
                 actionUnitNumber = len(longlist)
@@ -386,6 +386,39 @@ class FUNCTION_OT_my_drivers(bpy.types.Operator):
                     add_driver( source, target, shapetarget, bonetarget, -1, func = functionshape   )
                     k += 1
 
+                Eyelist = ['RightEye', 'LeftEye']
+                k = 0
+                while (k < 2):
+                    target = bpy.data.objects["FACS_Controller"]
+
+                    source = bpy.data.objects[Eyelist [k]]
+                    add_driver(source, target, "rotation_euler", "EyeHoriz", 0, func = '-0.5*')
+                    print("1")
+
+                    k += 1
+
+                k = 0
+                while (k < 2):
+                    target = bpy.data.objects["FACS_Controller"]
+                    source = bpy.data.objects[Eyelist [k]]
+                    add_driver(source, target, "rotation_euler", "EyeVert", 2, func = '0.5*')
+                    print("2")
+
+                    k += 1
+
+
+                # source = bpy.data.objects["LeftEye"]
+                # add_driver(source, target, "rotation_euler", "EyeVert", 2, func = '0.3*')
+                # print("left eye vert")
+
+                # source = bpy.data.objects["RightEye"]
+                # add_driver(source, target, "rotation_euler", "EyeVert", 2, func = '')
+                # print("right eye vert")
+
+
+                # source = bpy.data.objects["RightEye"]
+                # add_driver(source, target, "rotation_euler", "EyeHoriz", 0, func = '')
+                # print("right eye horiz")
 
                 print("Drivers connected!")
         return {'FINISHED'}

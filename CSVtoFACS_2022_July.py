@@ -12,7 +12,7 @@ bl_info={
     "name": "OpenFace FACS Data to Bones",
     "author": "Andras Csefalvay",
     "description": "Can apply OpenFace FACS Data to Bones from a .csv file that OpenFace exports",
-    "version": (1,0,4,),
+    "version": (1,1,0,),
     "location": "View3D>FACS>OpenFace FACS Data to Bones",
     "category": "FACS",
     "support": "COMMUNITY",
@@ -333,7 +333,7 @@ class FUNCTION_OT_my_drivers(bpy.types.Operator):
                     'mouthRollLower', 'mouthPressLeft', 'mouthPressRight','eyeBlinkLeft', 'eyeBlinkRight','browInnerUp',
                     'browOuterUpLeft','browOuterUpRight', 'browDownRight' ,'browDownLeft']
 
-                direction= [-1,2,2,-6,-2,1,
+                direction= [-1,1,1,-6,-2,1,
                             1,1,1,1,1,1,
                             1,1,1,1,1,1,
                             1,1,1,1]

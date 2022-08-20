@@ -18,45 +18,42 @@ import csv
 
 import normalization
 
-# get the frame with slider
+class Start:
+    videoname = None
+    @classmethod
+    def select_video_file(self):
+        filetypes = (('Video files', '*.mp4'), ('All files', '*.*'))
+        self.videoname = fd.askopenfilename(title='Select video to track',initialdir='//', filetypes=filetypes)
 
+    def get_video_file(self):
+        # print(self.videoname)
+        return self.videoname
 
 class NeutralFrame:
-    landmarkpositions = [None] * 478
-
+    landmarkpositions = [[None, None]] * 478
 
 class CurrentLandmark:
-    Current_landmarks = [None] * 478
+    Current_landmarks = [[None, None]] * 478
 
     @classmethod
     def set_Current_landmarks(self, set_landmarks):
         self.Current_landmarks = set_landmarks
 
 
-
     def get_Current_landmarks(self):
         return self.Current_landmarks
 
-
-
-# get the video
 class Video:
     allframes = 0
     def __init__(self):
-        if Start().get_video_file():
-            self.video = cv2.VideoCapture(Start().get_video_file())
+        if Start().videoname:
+            self.video = cv2.VideoCapture(Start().videoname)
             self.allframes = self.video.get(cv2.CAP_PROP_FRAME_COUNT)
         else:
             self.allframes = 0
 
-
     def get_max_frames(self):
         return self.allframes
-
-
-
-
-# play it frame by framee
 
 class CurrentFrame:
     def __init__(self):
@@ -86,14 +83,10 @@ class CurrentTime:
     def get_current_time(self):
         return self.current_time
 
-
-
-
-
 class CurrentImage:
     def __init__(self):
-        if Start().get_video_file():
-            ret, frame = cv2.VideoCapture(Start().get_video_file()).read()
+        if Start().videoname:
+            ret, frame = cv2.VideoCapture(Start().videoname).read()
             if ret:
                 scale_percent = 30 # percent of original size
                 width = 800
@@ -107,16 +100,12 @@ class CurrentImage:
         else:
             self.current_image = 0
 
-
     def set_current_image(self, set_image):
         # cv2.imshow("Face Landmarks", self.frame )
         self.current_image = set_image
 
-
-
     def get_current_image(self):
         return self.current_image
-
 
 class Display:
 
@@ -124,15 +113,11 @@ class Display:
         self.window = window
         self.window.title(window_title)
 
-
-
-
-        if Video().get_max_frames():
-            self.frame_number = Video().get_max_frames()
+        if Video().allframes:
+            self.frame_number = Video().allframes
         else:
             self.frame_number = 0
-        print (self.frame_number)
-
+        # print (self.frame_number)
 
         wideInt= 820
         heightInt= 520
@@ -146,91 +131,102 @@ class Display:
         self.label = Label(self.window, text = 0)
         self.label.place(x=50, y=450)
         # self.label.pack()
-        #label.config(bg=rgb_hack((51, 51, 51)), fg='#fff')
+        # self.label.config(bg=rgb_hack((51, 51, 51)), fg='#fff')
 
         # display the slider
         self.slider =Scale(self.window, from_=0, to=0, length=800, tickinterval=10, orient=HORIZONTAL)
         self.slider.place(x=10, y=heightInt-10)
 
-        self.btplay=tkinter.Button(window, text="Play / Pause", width=10, command=lambda: self.Play())
-        self.btplay.place(x=100, y=450)
+        # back button
+        self.btBack=tkinter.Button(window, text="<<", width=3, command=lambda: self.JumpTo(0))
+        self.btBack.place(x=80, y=450)
 
-        self.btBack=tkinter.Button(window, text="Backwards / Pause", width=15, command=lambda: self.PlayBack())
-        self.btBack.place(x=180, y=450)
+        # select video dialog
+        self.btSelect=tkinter.Button(window, text="Select Video", width=20, command=lambda: Start().select_video_file())
+        self.btSelect.place(x=130, y=450)
 
-        self.btSelect=tkinter.Button(window, text="Select Video", width=30, command=lambda: Start().select_video_file())
-        self.btSelect.place(x=295, y=450)
+        # select neutral frame button
+        self.btNeutral=tkinter.Button(window, text="Neutral Frame", width=20,  command=lambda: self.Neutral())
+        self.btNeutral.place(x=300, y=450)
 
-        self.btNeutral=tkinter.Button(window, text="Neutral Frame", width=12,  command=lambda: self.Neutral())
-        self.btNeutral.place(x=515, y=450)
+        # track whole video button
+        self.btTracking=tkinter.Button(window, text="Track video", width=20, command=lambda: self.Track())
+        self.btTracking.place(x=470, y=450)
 
-        self.btTracking=tkinter.Button(window, text="Track video", width=10, command=lambda: self.Track())
-        self.btTracking.place(x=610, y=450)
-
-        self.btNormalize=tkinter.Button(window, text="Normalize Results", width=14, command=lambda: self.Normalize())
-        self.btNormalize.place(x=690, y=450)
+        # open created file and normalize results from 0-1 for each column
+        self.btNormalize=tkinter.Button(window, text="Normalize Results", width=20, command=lambda: self.Normalize())
+        self.btNormalize.place(x=640, y=450)
 
         self.tracking = False
         self.playing = False
         self.backwardsplaying = False
 
-
         # self.distancelabel = Label(self.window, text = 0)
         # self.distancelabel.place(x=10, y=10)
-
 
         # After it is called once, the update method will be automatically called every delay milliseconds
         self.delay = 15
         self.update()
 
-
         self.window.mainloop()
 
-
-# display selected frame
+    # display selected frame
     def update(self):
-
 
         c = CurrentFrame()
         i = CurrentImage()
         t = CurrentTime()
         v = Video()
 
-
-
-        maxframes = v.get_max_frames()
+        maxframes = v.allframes
         self.slider.config(to=maxframes)
 
-        if self.playing is True:
-            return
-        ########### playbar
-
-        print("updating....")
-        if self.playing is True:
-            if t.get_current_time()<(maxframes-1):
-                t.set_current_time(t.get_current_time() + 1)
-                slider_pos = t.get_current_time()
-                self.slider.set(slider_pos)
-        if self.backwardsplaying is True:
-            if t.get_current_time()>0:
-                t.set_current_time(t.get_current_time() - 1)
-                slider_pos = t.get_current_time()
-                self.slider.set(slider_pos)
-        else:
-            t.set_current_time(self.slider.get())
-
-
-        #########################
         c.set_current_frame(self.slider.get())
 
-
-
-        if Start().get_video_file():
-            self.vid = cv2.VideoCapture(Start().get_video_file())
+        if Start().videoname:
+            self.vid = cv2.VideoCapture(Start().videoname)
+            self.vid.set(38,1) # set buffer siye parameter to 1.0
             self.vid.set(cv2.CAP_PROP_POS_FRAMES, c.get_current_frame())
+        else:
+            # imag = PIL.Image.open("C:/Users/Andras/Desktop/a.jpg")
+            # self.photo = PIL.ImageTk.PhotoImage(image = imag)
+            self.window.after(self.delay, self.update)
+            return
+        ret, frame = self.vid.read()
+
+        if ret:
+
+            scale_percent = 10 # percent of original size
+            width = 800
+            height = int(frame.shape[0] * (width / frame.shape[1]))
+            dim = (width, height)
+            frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            self.FrameToProcess = frame
+
+            self.label.config(text = c.get_current_frame())
+            # cv2.imshow("Face Landmarks", frame )
+            self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(frame))
+            self.canvas.create_image(0, 0, image = self.photo, anchor = tkinter.NW)
+
+            self.canvas.pack()
+            self.window.after(self.delay, self.update)
+
+    def Neutral(self):
+        t = CurrentTime()
+        cl = CurrentLandmark()
+        self.Neutralframe= t.get_current_time()
+        print(self.Neutralframe)
+        l = NeutralFrame()
+
+        if Start().videoname:
+            self.vid = cv2.VideoCapture(Start().videoname)
+            self.vid.set(cv2.CAP_PROP_POS_FRAMES, t.get_current_time())
         else:
             self.window.after(self.delay, self.update)
             return
+
         ret, frame = self.vid.read()
 
         if ret:
@@ -243,35 +239,9 @@ class Display:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             self.FrameToProcess = frame
-            #### COMMENT THIS TO UNPROCESSED VIDEO --->
             processed = self.Process(self.vid, self.FrameToProcess)
-            i.set_current_image(processed)
-            frame = i.get_current_image()
-
-            self.label.config(text = c.get_current_frame())
-            self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(frame))
-            self.canvas.create_image(0, 0, image = self.photo, anchor = tkinter.NW)
-
-            self.canvas.pack()
-            self.window.after(self.delay, self.update)
 
 
-
-    #play function
-
-    def Play(self):
-        self.playing^= True
-
-    def PlayBack(self):
-        self.backwardsplaying^= True
-
-
-    def Neutral(self):
-        t = CurrentTime()
-        cl = CurrentLandmark()
-        self.Neutralframe= t.get_current_time()
-        print(self.Neutralframe)
-        l = NeutralFrame()
         for n in range(0, 478):
             l.landmarkpositions[n] = cl.get_Current_landmarks()[n]
 
@@ -280,7 +250,7 @@ class Display:
 
     def Tracking(self, number):
 
-        filename = Start().get_video_file()
+        filename = Start().videoname
         filebasedir= os.path.dirname(filename)
         filenaming= os.path.basename(filename)
         filenaming= os. path. splitext(filenaming)[0]
@@ -296,9 +266,9 @@ class Display:
             writer = csv.writer(file)
             list = [self.currentframenumber]
 
-
-            if Start().get_video_file():
-                self.vid = cv2.VideoCapture(Start().get_video_file())
+            if Start().videoname:
+                self.vid = cv2.VideoCapture(Start().videoname)
+                self.vid.set(38,1) # set buffer siye parameter to 1.0
                 self.vid.set(cv2.CAP_PROP_POS_FRAMES, self.currentframenumber)
             else:
                 self.window.after(self.delay, self.update)
@@ -319,21 +289,33 @@ class Display:
                 processed = self.Process(self.vid, self.FrameToProcess)
 
             print (self.currentframenumber)
+
             #version where direct AUs are called
-            MouthOpen = self.euclideanDistance(nf.landmarkpositions[13], cl.get_Current_landmarks()[13]) - self.euclideanDistance(nf.landmarkpositions[14], cl.get_Current_landmarks()[14])
-            MouthWide = self.euclideanDistance(nf.landmarkpositions[61], cl.get_Current_landmarks()[61])
-            JawOpen = self.euclideanDistance(nf.landmarkpositions[200], cl.get_Current_landmarks()[200])
-            MouthCorner_Left = self.euclideanDistance(nf.landmarkpositions[186], cl.get_Current_landmarks()[186])
-            MouthCorner_Right = self.euclideanDistance(nf.landmarkpositions[322], cl.get_Current_landmarks()[322])
-            UpperLipRaiser = self.euclideanDistance(nf.landmarkpositions[0], cl.get_Current_landmarks()[0]) - self.euclideanDistance(nf.landmarkpositions[13], cl.get_Current_landmarks()[13])
-            LowerLipRaiser = self.euclideanDistance(nf.landmarkpositions[17], cl.get_Current_landmarks()[17]) - self.euclideanDistance(nf.landmarkpositions[14], cl.get_Current_landmarks()[14])
-            LipPresser = self.euclideanDistance(nf.landmarkpositions[17], cl.get_Current_landmarks()[17]) - self.euclideanDistance(nf.landmarkpositions[0], cl.get_Current_landmarks()[0])
-            EyeBlink = self.euclideanDistance(nf.landmarkpositions[159], cl.get_Current_landmarks()[159]) - self.euclideanDistance(nf.landmarkpositions[145], cl.get_Current_landmarks()[145])
-            InnerBrowRaiser = self.euclideanDistance(nf.landmarkpositions[107], cl.get_Current_landmarks()[107])
-            OuterBrowRaiser = self.euclideanDistance(nf.landmarkpositions[63], cl.get_Current_landmarks()[63])
-            BrowLowerer = -(self.euclideanDistance(nf.landmarkpositions[55], cl.get_Current_landmarks()[55]))
+            # MouthOpen = -((nf.landmarkpositions[14][1]- nf.landmarkpositions[13][1]) - (cl.get_Current_landmarks()[14][1]- cl.get_Current_landmarks()[13][1]))
+            # MouthWide = nf.landmarkpositions[61][0] - cl.get_Current_landmarks()[61][0]
+            # MouthOpen = self.euclideanDistance(nf.landmarkpositions[14], nf.landmarkpositions[13]) - self.euclideanDistance(cl.get_Current_landmarks()[14], cl.get_Current_landmarks()[13])
+            MouthWide = self.euclideanDistance(nf.landmarkpositions[61], nf.landmarkpositions[291]) - self.euclideanDistance(cl.get_Current_landmarks()[61], cl.get_Current_landmarks()[291])
+            MouthPucker = self.euclideanDistance(nf.landmarkpositions[181], nf.landmarkpositions[405]) - self.euclideanDistance(cl.get_Current_landmarks()[181], cl.get_Current_landmarks()[405])
+            JawOpen = self.euclideanDistance(nf.landmarkpositions[200], nf.landmarkpositions[0]) - self.euclideanDistance(cl.get_Current_landmarks()[200], cl.get_Current_landmarks()[0])
+            # makes an open jaw and a closed mouth
+            MouthOpen = JawOpen - (self.euclideanDistance(nf.landmarkpositions[14], nf.landmarkpositions[13]) - self.euclideanDistance(cl.get_Current_landmarks()[14], cl.get_Current_landmarks()[13]))
+
+            MouthCorner_Left = self.euclideanDistance(nf.landmarkpositions[186], nf.landmarkpositions[6]) - self.euclideanDistance(cl.get_Current_landmarks()[186], cl.get_Current_landmarks()[6])
+            MouthCorner_Right = self.euclideanDistance(nf.landmarkpositions[410], nf.landmarkpositions[6]) - self.euclideanDistance(cl.get_Current_landmarks()[410], cl.get_Current_landmarks()[6])
+            UpperLipRaiser = self.euclideanDistance(nf.landmarkpositions[13], nf.landmarkpositions[0]) - self.euclideanDistance(cl.get_Current_landmarks()[13], cl.get_Current_landmarks()[0])
+            LowerLipRaiser = self.euclideanDistance(nf.landmarkpositions[17], nf.landmarkpositions[14]) - self.euclideanDistance(cl.get_Current_landmarks()[17], cl.get_Current_landmarks()[14])
+            LipPresser = self.euclideanDistance(nf.landmarkpositions[17], nf.landmarkpositions[0]) - self.euclideanDistance(cl.get_Current_landmarks()[17], cl.get_Current_landmarks()[0])
+            EyeBlink = self.euclideanDistance(nf.landmarkpositions[159], nf.landmarkpositions[145]) - self.euclideanDistance(cl.get_Current_landmarks()[159], cl.get_Current_landmarks()[145])
+            InnerBrowRaiser = self.euclideanDistance(nf.landmarkpositions[107], nf.landmarkpositions[6]) - self.euclideanDistance(cl.get_Current_landmarks()[107], cl.get_Current_landmarks()[6])
+            OuterBrowRaiser = self.euclideanDistance(nf.landmarkpositions[63], nf.landmarkpositions[6]) - self.euclideanDistance(cl.get_Current_landmarks()[63], cl.get_Current_landmarks()[6])
+            BrowLowerer = self.euclideanDistance(nf.landmarkpositions[55], nf.landmarkpositions[6]) - self.euclideanDistance(cl.get_Current_landmarks()[55], cl.get_Current_landmarks()[6])
+            #### LEFT_IRIS = [474,475, 476, 477]
+            #### RIGHT_IRIS = [469, 470, 471, 472]
+            EyeHoriz = self.euclideanDistance(nf.landmarkpositions[474], nf.landmarkpositions[33]) - self.euclideanDistance(cl.get_Current_landmarks()[474], cl.get_Current_landmarks()[33])
+            EyeVert =  self.euclideanDistance(nf.landmarkpositions[474], nf.landmarkpositions[159]) - self.euclideanDistance(cl.get_Current_landmarks()[474], cl.get_Current_landmarks()[159])
             list.append(MouthOpen)
             list.append(MouthWide)
+            list.append(MouthPucker)
             list.append(JawOpen)
             list.append(MouthCorner_Left)
             list.append(MouthCorner_Right)
@@ -344,10 +326,9 @@ class Display:
             list.append(InnerBrowRaiser)
             list.append(OuterBrowRaiser)
             list.append(BrowLowerer)
-            #list.append("{:.1f}".format(EyeVert))
-            #list.append("{:.1f}".format(EyeHoriz))
+            list.append(EyeVert)
+            list.append(EyeHoriz)
             writer.writerow(list)
-
 
     def Track(self):
         self.playing= True
@@ -358,39 +339,33 @@ class Display:
         nf = NeutralFrame()
         v = Video()
 
-        filename = Start().get_video_file()
+        filename = Start().videoname
         print (filename)
         filebasedir= os.path.dirname(filename)
         filenaming= os.path.basename(filename)
-        filenaming= os. path. splitext(filenaming)[0]
+        filenaming= os.path.splitext(filenaming)[0]
 
         with open(filebasedir + '/delta_facs_' + filenaming + '.csv', 'w', newline='') as file:
             writer = csv.writer(file)
-            title = ["Frame", "MouthOpen", "MouthWide", "JawOpen", "MouthCorner_Left", "MouthCorner_Right","UpperLipRaiser","LowerLipRaiser","LipPresser","EyeBlink", "InnerBrowRaiser", "OuterBrowRaiser","BrowLowerer", "EyeHoriz", "EyeVert"]
+            title = ["Frame", "MouthOpen", "MouthWide","mouthPucker", "JawOpen", "MouthCorner_Left", "MouthCorner_Right","UpperLipRaiser","LowerLipRaiser","LipPresser","EyeBlink", "InnerBrowRaiser", "OuterBrowRaiser","BrowLowerer", "EyeHoriz", "EyeVert"]
             writer.writerow(title)
 
         t.set_current_time(0)
 
-        while t.get_current_time() < v.get_max_frames():
-        # while t.get_current_time() < 10:
+        while t.get_current_time() < v.allframes:
 
-
+            self.slider.set(t.get_current_time())
             self.Tracking(t.get_current_time())
             t.set_current_time(t.get_current_time() + 1 )
-
-
-
 
 
 
         # self.window.after(self.delay, self.Track)
         print("tracking done")
 
-
-
     def Normalize(self):
 
-        filename = Start().get_video_file()
+        filename = Start().videoname
         normalization.normalize(filename)
 
     def JumpTo(self, t):
@@ -430,47 +405,30 @@ class Display:
                 rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 img_h, img_w = frame.shape[:2]
                 results = face_mesh.process(rgb_frame)
-                landmarks = results.multi_face_landmarks[0]
-
-                #joke test
-                # point1 = [img_w*landmarks.landmark[0].x, img_h*landmarks.landmark[0].y]
-                # point2 = [img_w*landmarks.landmark[17].x, img_h*landmarks.landmark[17].y]
-                # distance = self.euclideanDistance(point1, point2)
-                # self.distancelabel.config(text = distance)
-
                 cl = CurrentLandmark()
-                for n in range(0, 478):
+                nf = NeutralFrame()
+                if results.multi_face_landmarks:
+                    landmarks = results.multi_face_landmarks[0]
 
-                    x = img_w*landmarks.landmark[n].x
-                    y = img_h*landmarks.landmark[n].y
-                    cv2.circle(frame, (int(x), int(y)), 1, (255, 0, 0), 1)
-                    cl.Current_landmarks[n] = [x,y]
 
+
+
+                    for n in range(0, 478):
+
+                        x = img_w*landmarks.landmark[n].x
+                        y = img_h*landmarks.landmark[n].y
+                        cv2.circle(frame, (int(x), int(y)), 1, (255, 0, 0), 1)
+                        cl.Current_landmarks[n] = [x,y]
+                else:
+                    for n in range(0, 478):
+                        cl.Current_landmarks[n] = nf.landmarkpositions[n]
 
 
                 FrameToProcess = frame
                 return FrameToProcess
 
 
+
 window_name = "Tkinter and OpenCV"
-
-class Start:
-    videoname = None
-    @classmethod
-    def select_video_file(self):
-        filetypes = (('Video files', '*.mp4'), ('All files', '*.*'))
-        self.videoname = fd.askopenfilename(title='Select video to track',initialdir='//', filetypes=filetypes)
-
-
-
-    def get_video_file(self):
-        # print(self.videoname)
-        return self.videoname
-
-
-
-# Start().select_video_file()
-# video_name =  "C:/Users/Andras/Desktop/test.mp4"
-
 
 Display(tkinter.Tk(), window_name)

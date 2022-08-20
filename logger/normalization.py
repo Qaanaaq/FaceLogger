@@ -15,8 +15,8 @@ def normalize(videofile):
 
         data = list(temp_reader)
         row_count = len(data)
-        column_count= len(data[0])-2
-        frame_count = row_count - 1
+        column_count= len(data[0])
+        frame_count = row_count
 
         # column_count = 3
 
@@ -50,7 +50,7 @@ def normalize(videofile):
     #print (data)
     with open(filebasedir + '/delta_facs_' + filenaming + '_normalized.csv', 'w', newline='') as csvfile:
         temp_writer = csv.writer(csvfile, delimiter=',')
-        title = ["Frame", "MouthOpen", "MouthWide", "JawOpen", "MouthCorner_Left", "MouthCorner_Right","UpperLipRaiser","LowerLipRaiser","LipPresser","EyeBlink", "InnerBrowRaiser", "OuterBrowRaiser","BrowLowerer", "EyeHoriz", "EyeVert"]
+        title = ["Frame", "MouthOpen", "MouthWide", "MouthPucker", "JawOpen", "MouthCorner_Left", "MouthCorner_Right","UpperLipRaiser","LowerLipRaiser","LipPresser","EyeBlink", "InnerBrowRaiser", "OuterBrowRaiser","BrowLowerer", "EyeHoriz", "EyeVert"]
         temp_writer.writerow(title)
         for n in range(1, frame_count):
             temp_writer.writerow(data[n])
