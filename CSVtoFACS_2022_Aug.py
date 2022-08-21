@@ -344,9 +344,11 @@ class FUNCTION_OT_my_drivers(bpy.types.Operator):
 
 
                 def add_driver(
-                    source, target, prop, bonetarget, index = -1, negative = False, func = ''):
+                    source, target, prop, bonetarget, index = -1, negative = False, func = '', bool = 0):
 
-                    source.driver_remove(prop)
+                    if bool == 0 :
+                        source.driver_remove(prop)
+                    else: pass
                     ##Add driver to source prop (at index), driven by target dataPath '''
                     if index != -1:
                         d = source.driver_add( prop, index ).driver
@@ -383,16 +385,15 @@ class FUNCTION_OT_my_drivers(bpy.types.Operator):
                     shapetarget = f'key_blocks["{endtarget}"].value'
                     functionshape = f"{direction[k]} * "
 
-                    add_driver( source, target, shapetarget, bonetarget, -1, func = functionshape   )
+                    add_driver( source, target, shapetarget, bonetarget, -1, func = functionshape , bool = 0)
                     k += 1
 
                 Eyelist = ['RightEye', 'LeftEye']
                 k = 0
                 while (k < 2):
                     target = bpy.data.objects["FACS_Controller"]
-
                     source = bpy.data.objects[Eyelist [k]]
-                    add_driver(source, target, "rotation_euler", "EyeHoriz", 0, func = '-0.5*')
+                    add_driver(source, target, "rotation_euler", "EyeHoriz", 0, func = '-0.3*', bool = 1)
                     print("1")
 
                     k += 1
@@ -401,24 +402,11 @@ class FUNCTION_OT_my_drivers(bpy.types.Operator):
                 while (k < 2):
                     target = bpy.data.objects["FACS_Controller"]
                     source = bpy.data.objects[Eyelist [k]]
-                    add_driver(source, target, "rotation_euler", "EyeVert", 2, func = '0.5*')
+                    add_driver(source, target, "rotation_euler", "EyeVert", 2, func = '-0.3*', bool =  1)
                     print("2")
 
                     k += 1
 
-
-                # source = bpy.data.objects["LeftEye"]
-                # add_driver(source, target, "rotation_euler", "EyeVert", 2, func = '0.3*')
-                # print("left eye vert")
-
-                # source = bpy.data.objects["RightEye"]
-                # add_driver(source, target, "rotation_euler", "EyeVert", 2, func = '')
-                # print("right eye vert")
-
-
-                # source = bpy.data.objects["RightEye"]
-                # add_driver(source, target, "rotation_euler", "EyeHoriz", 0, func = '')
-                # print("right eye horiz")
 
                 print("Drivers connected!")
         return {'FINISHED'}

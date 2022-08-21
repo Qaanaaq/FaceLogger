@@ -20,11 +20,11 @@ def normalize(videofile):
 
         # column_count = 3
 
-    try:
-        print (f"Rows: {row_count}")
-        print (f"Columns: {column_count}")
-    except IndexError:
-        print('No data found')
+    # try:
+    #     print (f"Rows: {row_count}")
+    #     print (f"Columns: {column_count}")
+    # except IndexError:
+    #     print('No data found')
 
     for m in range (1, column_count):
         temp_max = 0
@@ -33,7 +33,7 @@ def normalize(videofile):
             cell = abs(cell)
             if cell > temp_max:
                 temp_max = cell
-                print (f"temp_max: {temp_max}")
+                # print (f"temp_max: {temp_max}")
 
 
         with open(filebasedir + '/delta_facs_' + filenaming + '.csv', 'r+', newline='') as csvfile:
@@ -43,8 +43,8 @@ def normalize(videofile):
                 cell = float(data[n][m])
                 cell = cell / temp_max
                 cell ="%.2f" % round(cell, 2)
-                print ("n: "  + str(n))
-                print ("m: "  + str(m))
+                # print ("n: "  + str(n))
+                # print ("m: "  + str(m))
                 data[n][m] = cell
 
     #print (data)

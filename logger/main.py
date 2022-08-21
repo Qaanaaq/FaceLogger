@@ -185,7 +185,7 @@ class Display:
 
         if Start().videoname:
             self.vid = cv2.VideoCapture(Start().videoname)
-            self.vid.set(38,1) # set buffer siye parameter to 1.0
+            self.vid.set(38,1) # set buffer size parameter to 1.0
             self.vid.set(cv2.CAP_PROP_POS_FRAMES, c.get_current_frame())
         else:
             # imag = PIL.Image.open("C:/Users/Andras/Desktop/a.jpg")
@@ -311,8 +311,10 @@ class Display:
             BrowLowerer = self.euclideanDistance(nf.landmarkpositions[55], nf.landmarkpositions[6]) - self.euclideanDistance(cl.get_Current_landmarks()[55], cl.get_Current_landmarks()[6])
             #### LEFT_IRIS = [474,475, 476, 477]
             #### RIGHT_IRIS = [469, 470, 471, 472]
-            EyeHoriz = self.euclideanDistance(nf.landmarkpositions[474], nf.landmarkpositions[33]) - self.euclideanDistance(cl.get_Current_landmarks()[474], cl.get_Current_landmarks()[33])
-            EyeVert =  self.euclideanDistance(nf.landmarkpositions[474], nf.landmarkpositions[159]) - self.euclideanDistance(cl.get_Current_landmarks()[474], cl.get_Current_landmarks()[159])
+            EyeHoriz = self.euclideanDistance(nf.landmarkpositions[474], nf.landmarkpositions[263]) - self.euclideanDistance(cl.get_Current_landmarks()[474], cl.get_Current_landmarks()[263])
+            EyeVert =  self.euclideanDistance(nf.landmarkpositions[472], nf.landmarkpositions[159]) - self.euclideanDistance(cl.get_Current_landmarks()[472], cl.get_Current_landmarks()[159])
+
+            used_vert_set = [0, 6, 13, 14, 17, 55, 61, 63, 107, 145, 159, 181, 186, 200, 263, 291, 405, 410, 472, 474]
             list.append(MouthOpen)
             list.append(MouthWide)
             list.append(MouthPucker)
@@ -407,21 +409,35 @@ class Display:
                 results = face_mesh.process(rgb_frame)
                 cl = CurrentLandmark()
                 nf = NeutralFrame()
+
+                used_vert_set = [0, 6, 13, 14, 17, 55, 61, 63, 107, 145, 159, 181, 186, 200, 263, 291, 405, 410, 472, 474]
+                u = len(used_vert_set)
                 if results.multi_face_landmarks:
                     landmarks = results.multi_face_landmarks[0]
 
 
 
 
-                    for n in range(0, 478):
+                #     for n in range(0, 478):
+                #
+                #         x = img_w*landmarks.landmark[n].x
+                #         y = img_h*landmarks.landmark[n].y
+                #         # cv2.circle(frame, (int(x), int(y)), 1, (255, 0, 0), 1)
+                #         cl.Current_landmarks[n] = [x,y]
+                # else:
+                #     for n in range(0, 478):
+                #         cl.Current_landmarks[n] = nf.landmarkpositions[n]
 
-                        x = img_w*landmarks.landmark[n].x
-                        y = img_h*landmarks.landmark[n].y
+                    for n in range(0, u):
+
+                        x = img_w*landmarks.landmark[used_vert_set[n]].x
+                        y = img_h*landmarks.landmark[used_vert_set[n]].y
                         cv2.circle(frame, (int(x), int(y)), 1, (255, 0, 0), 1)
-                        cl.Current_landmarks[n] = [x,y]
+                        cl.Current_landmarks[used_vert_set[n]] = [x,y]
+                        # cv2.imshow("Face Landmarks", frame )
                 else:
-                    for n in range(0, 478):
-                        cl.Current_landmarks[n] = nf.landmarkpositions[n]
+                    for n in range(0, u):
+                        cl.Current_landmarks[used_vert_set[n]] = nf.landmarkpositions[used_vert_set[n]]
 
 
                 FrameToProcess = frame
