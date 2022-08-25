@@ -1,4 +1,6 @@
 import mediapipe as mp
+
+print(mp.__file__)
 import cv2 as cv
 import numpy as np
 mp_face_mesh = mp.solutions.face_mesh

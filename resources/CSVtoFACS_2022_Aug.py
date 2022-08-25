@@ -12,7 +12,7 @@ bl_info={
     "name": "OpenFace FACS Data to Bones",
     "author": "Andras Csefalvay",
     "description": "Can apply OpenFace FACS Data to Bones from a .csv file that OpenFace exports",
-    "version": (1,2,8,),
+    "version": (1,4,0,),
     "location": "View3D>FACS>OpenFace FACS Data to Bones",
     "category": "FACS",
     "support": "COMMUNITY",
@@ -388,13 +388,31 @@ class FUNCTION_OT_my_drivers(bpy.types.Operator):
                     add_driver( source, target, shapetarget, bonetarget, -1, func = functionshape , bool = 0)
                     k += 1
 
+                Eye_direction_list = ['EyeVert', 'EyeHoriz','EyeHoriz','EyeVert','EyeVert', 'EyeHoriz','EyeHoriz','EyeVert']
+                Movement_direction= [-1,1,1,-1,-1,-1,-1,-1]
+                Eyemovement= ['eyeLookDownLeft', 'eyeLookInLeft','eyeLookOutLeft' ,'eyeLookUpLeft', 'eyeLookDownRight', 'eyeLookInRight','eyeLookOutRight' ,'eyeLookUpRight']
+
+                k = 0
+                while (k < 8):
+                    target = bpy.data.objects["FACS_Controller"]
+                    shape_key = bpy.data.objects['BaseHead'].data.shape_keys
+                    source = shape_key
+
+                    bonetarget = Eye_direction_list[k]
+                    endtarget = Eyemovement[k]
+                    shapetarget = f'key_blocks["{endtarget}"].value'
+                    functionshape = f"{Movement_direction[k]} * "
+
+                    add_driver( source, target, shapetarget, bonetarget, -1, func = functionshape, bool = 0)
+                    k += 1
+
                 Eyelist = ['RightEye', 'LeftEye']
                 k = 0
                 while (k < 2):
                     target = bpy.data.objects["FACS_Controller"]
                     source = bpy.data.objects[Eyelist [k]]
-                    add_driver(source, target, "rotation_euler", "EyeHoriz", 0, func = '-0.3*', bool = 1)
-                    print("1")
+                    add_driver(source, target, "rotation_euler", "EyeHoriz", 0, func = '0.8*', bool = 1)
+                    # print("1")
 
                     k += 1
 
@@ -402,8 +420,8 @@ class FUNCTION_OT_my_drivers(bpy.types.Operator):
                 while (k < 2):
                     target = bpy.data.objects["FACS_Controller"]
                     source = bpy.data.objects[Eyelist [k]]
-                    add_driver(source, target, "rotation_euler", "EyeVert", 2, func = '-0.3*', bool =  1)
-                    print("2")
+                    add_driver(source, target, "rotation_euler", "EyeVert", 2, func = '0.8*', bool =  1)
+                    # print("2")
 
                     k += 1
 

@@ -1,0 +1,1 @@
+pyinstaller --icon=face.ico main.py 

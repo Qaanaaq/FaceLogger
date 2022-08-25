@@ -1,0 +1,1 @@
+('C:\\Users\\Andras\\github\\FaceLogger\\logger\\build\\main\\PYZ-00.pyz', [])
