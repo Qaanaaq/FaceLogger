@@ -58,4 +58,4 @@ def normalize(videofile):
     temporary = (filebasedir + '/delta_facs_' + filenaming + '.csv')
     os.remove(temporary)
     os.rename(filebasedir + '/delta_facs_' + filenaming + '_normalized.csv',filebasedir + '/delta_facs_' + filenaming + '.csv')
-    print("Normalization done!")
+    # print("Normalization done!")

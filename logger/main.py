@@ -25,6 +25,7 @@ class Start:
         filetypes = (('Video files', '*.mp4'), ('All files', '*.*'))
         self.videoname = fd.askopenfilename(title='Select video to track',initialdir='//', filetypes=filetypes)
 
+
     def get_video_file(self):
         # print(self.videoname)
         return self.videoname
@@ -56,14 +57,16 @@ class Video:
         return self.allframes
 
 class CurrentFrame:
+    current_frame = 0
     def __init__(self):
-        self.current_frame = 0
+        pass
 
 
+    @classmethod
     def set_current_frame(self, set_frame):
         self.current_frame = set_frame
 
-
+    @classmethod
     def get_current_frame(self):
         return self.current_frame
 
@@ -120,42 +123,52 @@ class Display:
         # print (self.frame_number)
 
         wideInt= 820
-        heightInt= 520
+        heightInt= 500
         self.window.geometry(f'{wideInt+20}x{heightInt+80}')
+        self.window['background']='#454545'
+
+        #label that shows printouts.
+        self.console = Label(self.window, text = "", bg='#454545', fg='red')
+        self.console.place(x=10, y=10)
+        self.console.pack()
+        # self.label.config(bg=rgb_hack((51, 51, 51)), fg='#fff')
 
         # Create a canvas that can fit the above video source size
-        self.canvas = tkinter.Canvas(window, width =820, height = 420)
+        self.canvas = tkinter.Canvas(window, width =800, height = 420, highlightthickness=0)
+        self.canvas.place(x=20, y=20)
         self.canvas.pack()
 
         #labelstrack_label_name.set("")
-        self.label = Label(self.window, text = 0)
+        self.label = Label(self.window, text = 0, bg='#454545', fg='white')
         self.label.place(x=50, y=450)
         # self.label.pack()
         # self.label.config(bg=rgb_hack((51, 51, 51)), fg='#fff')
 
         # display the slider
-        self.slider =Scale(self.window, from_=0, to=0, length=800, tickinterval=10, orient=HORIZONTAL)
+        self.slider =Scale(self.window, from_=0, to=0, length=800, tickinterval=10, orient=HORIZONTAL, bg='#454545', fg='white', highlightthickness=0,)
         self.slider.place(x=10, y=heightInt-10)
 
         # back button
-        self.btBack=tkinter.Button(window, text="<<", width=3, command=lambda: self.JumpTo(0))
+        self.btBack=tkinter.Button(window, text="<<", width=3, command=lambda: self.JumpTo(0), bg='#454545', fg='white')
         self.btBack.place(x=80, y=450)
 
         # select video dialog
-        self.btSelect=tkinter.Button(window, text="Select Video", width=20, command=lambda: Start().select_video_file())
+        self.btSelect=tkinter.Button(window, text="Select Video", width=20, command=lambda: self.Select(), bg='#454545', fg='white')
         self.btSelect.place(x=130, y=450)
 
         # select neutral frame button
-        self.btNeutral=tkinter.Button(window, text="Neutral Frame", width=20,  command=lambda: self.Neutral())
+        self.btNeutral=tkinter.Button(window, text="Neutral Frame", width=20,  command=lambda: self.Neutral(), bg='#454545', fg='white')
         self.btNeutral.place(x=300, y=450)
 
         # track whole video button
-        self.btTracking=tkinter.Button(window, text="Track video", width=20, command=lambda: self.Track())
+        self.btTracking=tkinter.Button(window, text="Track video", width=20, command=lambda: self.Track(), bg='#454545', fg='white')
         self.btTracking.place(x=470, y=450)
 
         # open created file and normalize results from 0-1 for each column
-        self.btNormalize=tkinter.Button(window, text="Normalize Results", width=20, command=lambda: self.Normalize())
+        self.btNormalize=tkinter.Button(window, text="Normalize Results", width=20, command=lambda: self.Normalize(), bg='#454545', fg='white')
         self.btNormalize.place(x=640, y=450)
+
+
 
         self.tracking = False
         self.playing = False
@@ -178,10 +191,12 @@ class Display:
         t = CurrentTime()
         v = Video()
 
+
         maxframes = v.allframes
         self.slider.config(to=maxframes)
-
         c.set_current_frame(self.slider.get())
+
+
 
         if Start().videoname:
             self.vid = cv2.VideoCapture(Start().videoname)
@@ -205,13 +220,71 @@ class Display:
 
             self.FrameToProcess = frame
 
+            # if arg ==1:
+            #     processed = self.Process(self.vid, self.FrameToProcess)
+            #     i.set_current_image(processed)
+            #     frame = i.get_current_image()
+
             self.label.config(text = c.get_current_frame())
             # cv2.imshow("Face Landmarks", frame )
             self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(frame))
             self.canvas.create_image(0, 0, image = self.photo, anchor = tkinter.NW)
 
             self.canvas.pack()
+            # print(" i did an update")
+
+
+            if self.tracking == False:
+                self.window.after(self.delay, self.update)
+
+    def mid_update (self):
+
+        c = CurrentFrame()
+        i = CurrentImage()
+        t = CurrentTime()
+        v = Video()
+
+
+
+        self.label.config(text = c.get_current_frame())
+
+        if Start().videoname:
+            self.vid = cv2.VideoCapture(Start().videoname)
+            self.vid.set(38,1) # set buffer size parameter to 1.0
+            self.vid.set(cv2.CAP_PROP_POS_FRAMES, c.get_current_frame())
+        else:
+            # imag = PIL.Image.open("C:/Users/Andras/Desktop/a.jpg")
+            # self.photo = PIL.ImageTk.PhotoImage(image = imag)
             self.window.after(self.delay, self.update)
+            return
+        ret, frame = self.vid.read()
+
+        if ret:
+
+            scale_percent = 10 # percent of original size
+            width = 800
+            height = int(frame.shape[0] * (width / frame.shape[1]))
+            dim = (width, height)
+            frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            self.FrameToProcess = frame
+            processed = self.Process(self.vid, self.FrameToProcess)
+            i.set_current_image(processed)
+            frame = i.get_current_image()
+
+            self.label.config(text = c.get_current_frame())
+            # cv2.imshow("Face Landmarks", frame )
+            self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(frame))
+            self.canvas.create_image(0, 0, image = self.photo, anchor = tkinter.NW)
+
+            self.canvas.pack()
+        # print(" i did an mid-update")
+
+
+    def Select(self):
+        Start().select_video_file()
+        self.console.config(text = Start().get_video_file())
 
     def Neutral(self):
         t = CurrentTime()
@@ -247,6 +320,7 @@ class Display:
 
             # print (f"{n}" + " numer: "+ f"{l.landmarkpositions[n]}")
         print (cl.get_Current_landmarks())
+        self.console.config(text = "Neutral frame saved")
 
     def Tracking(self, number):
 
@@ -288,7 +362,17 @@ class Display:
                 self.FrameToProcess = frame
                 processed = self.Process(self.vid, self.FrameToProcess)
 
-            print (self.currentframenumber)
+            #debugging printouts
+
+            self.window.update()
+
+
+            # print (self.currentframenumber)
+            # print (t.get_current_time())
+            c.set_current_frame(self.currentframenumber )
+            # print (c.get_current_frame())
+            self.console.config(text = "Tracking frame " + str(self.currentframenumber))
+            self.window.after(self.delay,self.mid_update)
 
             #version where direct AUs are called
             # MouthOpen = -((nf.landmarkpositions[14][1]- nf.landmarkpositions[13][1]) - (cl.get_Current_landmarks()[14][1]- cl.get_Current_landmarks()[13][1]))
@@ -332,8 +416,9 @@ class Display:
             list.append(EyeHoriz)
             writer.writerow(list)
 
+
     def Track(self):
-        self.playing= True
+        self.tracking= True
 
         c = CurrentFrame()
         t = CurrentTime()
@@ -356,19 +441,29 @@ class Display:
 
         while t.get_current_time() < v.allframes:
 
+
+
             self.slider.set(t.get_current_time())
             self.Tracking(t.get_current_time())
+
+
+
             t.set_current_time(t.get_current_time() + 1 )
 
 
 
-        # self.window.after(self.delay, self.Track)
-        print("tracking done")
+
+        # print("tracking done")
+        self.console.config(text = "Tracking done")
+        self.tracking = False
+
+
 
     def Normalize(self):
 
         filename = Start().videoname
         normalization.normalize(filename)
+        self.console.config(text = "Normalization done")
 
     def JumpTo(self, t):
         self.slider.set(t)
@@ -381,7 +476,7 @@ class Display:
 
     def Process(self, video, FrameToProcess):
 
-        i=CurrentImage()
+        # i=CurrentImage()
 
         mp_face_mesh = mp.solutions.face_mesh
         with mp_face_mesh.FaceMesh(
@@ -445,6 +540,6 @@ class Display:
 
 
 
-window_name = "Tkinter and OpenCV"
+window_name = "MediaPipe and OpenCV"
 
 Display(tkinter.Tk(), window_name)
