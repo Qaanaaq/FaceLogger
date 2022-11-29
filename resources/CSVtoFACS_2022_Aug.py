@@ -11,7 +11,7 @@ import csv
 bl_info={
     "name": "OpenFace FACS Data to Bones",
     "author": "Andras Csefalvay",
-    "description": "Can apply OpenFace FACS Data to Bones from a .csv file that OpenFace exports",
+    "description": "Can apply OpenFace FACS Data to Bones from a .csv file that FaceLogger exports",
     "version": (1,4,0,),
     "location": "View3D>FACS>OpenFace FACS Data to Bones",
     "category": "FACS",
