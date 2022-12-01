@@ -23,3 +23,5 @@ If Record is on save the Live data to some table format.
 In Blender get data live from PyLiveLink (JimWest)
 Save keyframes of blendshape data from offline saved table from PyLiveLink (JimWest)
 No recording of live.
+
+ok let us see.
